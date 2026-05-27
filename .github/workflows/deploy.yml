@@ -1,9 +1,9 @@
-name: CI/CD Frontend AWS
+name: CI/CD Backend Despacho AWS
 
 on:
   push:
     branches:
-      - deploy # O main, dependiendo de la rama que uses
+      - deploy
 
 jobs:
   deploy:
@@ -25,19 +25,19 @@ jobs:
 
       - name: Build y Push de la imagen a ECR
         run: |
-          docker build -t ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest .
-          docker push ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest
+          docker build -t ${{ secrets.ECR_REPO_URL_BACKEND_DESPACHO }}:latest .
+          docker push ${{ secrets.ECR_REPO_URL_BACKEND_DESPACHO }}:latest
 
       - name: Despliegue en EC2 vía AWS SSM
         run: |
           aws ssm send-command \
-            --instance-ids "${{ secrets.EC2_FRONTEND_INSTANCE_ID }}" \
+            --instance-ids "${{ secrets.EC2_DESPACHO_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --parameters 'commands=[
               "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
-              "docker pull ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest",
-              "docker stop app-frontend || true",
-              "docker rm app-frontend || true",
-              "docker run -d --name app-frontend -p 80:80 ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest",
+              "docker pull ${{ secrets.ECR_REPO_URL_BACKEND_DESPACHO }}:latest",
+              "docker stop app-despacho || true",
+              "docker rm app-despacho || true",
+              "docker run -d --name app-despacho -p 8080:8080 ${{ secrets.ECR_REPO_URL_BACKEND_DESPACHO }}:latest",
               "docker image prune -f"
             ]'
