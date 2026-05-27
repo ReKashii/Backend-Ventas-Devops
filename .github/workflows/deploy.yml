@@ -3,7 +3,7 @@ name: CI/CD Backend Despacho AWS
 on:
   push:
     branches:
-      - deploy
+      - main
 
 jobs:
   deploy:
